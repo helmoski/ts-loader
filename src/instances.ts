@@ -1,6 +1,5 @@
 import * as typescript from 'typescript';
 import * as path from 'path';
-import * as fs from 'fs';
 import chalk, { Chalk } from 'chalk';
 
 import { makeAfterCompile } from './after-compile';
@@ -46,8 +45,13 @@ export function getTypeScriptInstance(
     }
 
     return successfulTypeScriptInstance(
-        loaderOptions, loader, log, colors,
-        compiler.compiler!, compiler.compilerCompatible!, compiler.compilerDetailsLogMessage!
+        loaderOptions, 
+        loader, 
+        log, 
+        colors,
+        compiler.compiler!, 
+        compiler.compilerCompatible!, 
+        compiler.compilerDetailsLogMessage!
     );
 }
 
@@ -126,7 +130,7 @@ function successfulTypeScriptInstance(
         filesToLoad.forEach(filePath => {
             normalizedFilePath = path.normalize(filePath);
             files[normalizedFilePath] = {
-                text: fs.readFileSync(normalizedFilePath, 'utf-8'),
+                text: loader.fs.readFileSync(normalizedFilePath, 'utf-8'),
                 version: 0
             };
           });

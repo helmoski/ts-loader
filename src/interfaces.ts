@@ -1,5 +1,6 @@
 import * as typescript from 'typescript';
 import { Chalk } from 'chalk';
+import * as fs from 'fs';
 
 export interface SourceMap {
     sources: any[];
@@ -97,6 +98,10 @@ export interface Webpack {
      * Emit a file. This is webpack-specific
      */
     emitFile: (fileName: string, text: string) => void; // unused
+    /**
+     * The inputFileSystem
+     */
+    fs: typeof fs;
     /**
      * The options passed to the Compiler.
      */

@@ -23,7 +23,7 @@ export function getConfigFile(
     log: logger.Logger,
     compilerDetailsLogMessage: string
 ) {
-    const configFilePath = findConfigFile(compiler, path.dirname(loader.resourcePath), loaderOptions.configFile);
+    const configFilePath = findConfigFile(loader, path.dirname(loader.resourcePath), loaderOptions.configFile);
     let configFileError: WebpackError | undefined;
     let configFile: ConfigFile;
 
@@ -36,7 +36,7 @@ export function getConfigFile(
 
         configFile = compiler.readConfigFile(
             configFilePath,
-            compiler.sys.readFile
+            (path: string) => loader.fs.readFileSync(path, "utf8")
         );
 
         if (configFile.error !== undefined) {
@@ -78,10 +78,10 @@ export function getConfigFile(
  * @param configFile The tsconfig file name to look for or a path to that file
  * @return The absolute path to the tsconfig file, undefined if none was found.
  */
-function findConfigFile(compiler: typeof typescript, requestDirPath: string, configFile: string): string | undefined {
+function findConfigFile(loader: Webpack, requestDirPath: string, configFile: string): string | undefined {
     // If `configFile` is an absolute path, return it right away
     if (path.isAbsolute(configFile)) {
-        return compiler.sys.fileExists(configFile)
+        return loader.fs.existsSync(configFile)
             ? configFile
             : undefined;
     }
@@ -91,7 +91,7 @@ function findConfigFile(compiler: typeof typescript, requestDirPath: string, con
     // one or two dots + a common directory delimiter
     if (configFile.match(/^\.\.?(\/|\\)/)) {
         const resolvedPath = path.resolve(requestDirPath, configFile);
-        return compiler.sys.fileExists(resolvedPath)
+        return loader.fs.existsSync(resolvedPath)
             ? resolvedPath
             : undefined;
 
@@ -99,7 +99,7 @@ function findConfigFile(compiler: typeof typescript, requestDirPath: string, con
     } else {
         while (true) {
             const fileName = path.join(requestDirPath, configFile);
-            if (compiler.sys.fileExists(fileName)) {
+            if (loader.fs.existsSync(fileName)) {
                 return fileName;
             }
             const parentPath = path.dirname(requestDirPath);

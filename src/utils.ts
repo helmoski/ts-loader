@@ -84,13 +84,17 @@ export function formatErrors(
         : [];
 }
 
-export function readFile(fileName: string, encoding: string | undefined = 'utf8') {
+export function readFile(fileName: string, encoding: string | undefined = 'utf8', readFn = fs.readFileSync) {
     fileName = path.normalize(fileName);
     try {
-        return fs.readFileSync(fileName, encoding);
+        return readFn(fileName, encoding);
     } catch (e) {
         return undefined;
     }
+}
+
+export function createReadFile(readFileSync: typeof fs.readFileSync) {
+    return (fileName: string, encoding: string | undefined = 'utf8') => readFile(fileName, encoding, readFileSync);
 }
 
 export function makeError(message: string, file?: string, location?: { line: number, character: number }): WebpackError {

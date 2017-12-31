@@ -5,7 +5,7 @@ import * as semver from 'semver';
 import * as constants from './constants';
 import * as logger from './logger';
 import { makeResolver } from './resolver';
-import { appendSuffixesIfMatch, readFile } from './utils';
+import { appendSuffixesIfMatch, createReadFile } from './utils';
 import {
     ModuleResolutionHost,
     ResolvedModule,
@@ -35,17 +35,20 @@ export function makeServicesHost(
     // make a (sync) resolver that follows webpack's rules
     const resolveSync = makeResolver(loader.options);
 
-    const readFileWithFallback = compiler.sys === undefined || compiler.sys.readFile === undefined
-        ? readFile
-        : (path: string, encoding?: string | undefined): string | undefined => compiler.sys.readFile(path, encoding) || readFile(path, encoding);
+    const fs = loader.fs;
+    const fsReadFile = createReadFile(fs.readFileSync);
+
+    const readFile = compiler.sys === undefined || compiler.sys.readFile === undefined
+        ? fsReadFile
+        : (path: string, encoding?: string | undefined): string | undefined => compiler.sys.readFile(path, encoding) || fsReadFile(path, encoding);
 
     const fileExists = compiler.sys === undefined || compiler.sys.fileExists === undefined
-        ? (path: string) => readFile(path) !== undefined
-        : (path: string) => compiler.sys.fileExists(path) || readFile(path) !== undefined;
+        ? (path: string) => fs.existsSync(path) !== undefined
+        : (path: string) => compiler.sys.fileExists(path) || fs.existsSync(path) !== undefined;
 
     const moduleResolutionHost: ModuleResolutionHost = {
         fileExists,
-        readFile: readFileWithFallback
+        readFile
     };
 
     // loader.context seems to work fine on Linux / Mac regardless causes problems for @types resolution on Windows for TypeScript < 2.3
@@ -99,8 +102,8 @@ export function makeServicesHost(
             : undefined,
 
         // The following three methods are necessary for @types resolution from TS 2.4.1 onwards see: https://github.com/Microsoft/TypeScript/issues/16772
-        fileExists: compiler.sys ? compiler.sys.fileExists : undefined,
-        readFile: compiler.sys ? compiler.sys.readFile : undefined,
+        fileExists,
+        readFile,
         readDirectory: compiler.sys ? compiler.sys.readDirectory : undefined,
 
         getCurrentDirectory,
