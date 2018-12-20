@@ -19,14 +19,11 @@ export function getConfigFile(
   log: logger.Logger,
   compilerDetailsLogMessage: string
 ) {
-  console.log('getConfigFile');
   const configFilePath = findConfigFile(
-    loader,
     compiler,
     path.dirname(loader.resourcePath),
     loaderOptions.configFile
   );
-  console.log(configFilePath);
   let configFileError: WebpackError | undefined;
   let configFile: ConfigFile;
 
@@ -37,24 +34,7 @@ export function getConfigFile(
       console.log(`ts-loader: Using config file at ${configFilePath}`);
     }
 
-    console.log(loader.fs.readFileSync('/tsconfig.json'));
-    const readFile = (filePath: string) => {
-      console.log('readFile');
-      console.log(filePath);
-      try {
-        console.log(loader.fs.readFileSync(filePath));
-        const file = loader.fs.readFileSync(filePath);
-        console.log(file);
-        throw new Error();
-        // return file;
-      } catch (e) {
-        console.error(e);
-        console.log(compiler.sys.readFile('~/test.txt'));
-        return compiler.sys.readFile(filePath);
-      }
-    };
-    configFile = compiler.readConfigFile(configFilePath, readFile);
-    console.log(configFile);
+    configFile = compiler.readConfigFile(configFilePath, compiler.sys.readFile);
 
     if (configFile.error !== undefined) {
       configFileError = formatErrors(
@@ -106,20 +86,13 @@ export function getConfigFile(
  * @return The absolute path to the tsconfig file, undefined if none was found.
  */
 function findConfigFile(
-  loader: Webpack,
   compiler: typeof typescript,
   requestDirPath: string,
   configFile: string
 ): string | undefined {
-  const fileExists = (fileName: string) => {
-    const exists =
-      loader.fs.existsSync(fileName) || compiler.sys.fileExists(fileName);
-    return exists;
-  };
-
   // If `configFile` is an absolute path, return it right away
   if (path.isAbsolute(configFile)) {
-    return fileExists(configFile) ? configFile : undefined;
+    return compiler.sys.fileExists(configFile) ? configFile : undefined;
   }
 
   // If `configFile` is a relative path, resolve it.
@@ -127,14 +100,13 @@ function findConfigFile(
   // one or two dots + a common directory delimiter
   if (configFile.match(/^\.\.?(\/|\\)/) !== null) {
     const resolvedPath = path.resolve(requestDirPath, configFile);
-    return fileExists(resolvedPath) ? resolvedPath : undefined;
+    return compiler.sys.fileExists(resolvedPath) ? resolvedPath : undefined;
 
     // If `configFile` is a file name, find it in the directory tree
   } else {
     while (true) {
       const fileName = path.join(requestDirPath, configFile);
-      if (fileExists(fileName)) {
-        console.log('RETURNING FILENAME', fileName);
+      if (compiler.sys.fileExists(fileName)) {
         return fileName;
       }
       const parentPath = path.dirname(requestDirPath);
