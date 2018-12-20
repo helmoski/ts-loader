@@ -2,10 +2,14 @@ import * as semver from 'semver';
 import * as typescript from 'typescript';
 
 import * as constants from './constants';
-import { LoaderOptions } from './interfaces';
+import { LoaderOptions, Webpack } from './interfaces';
 import * as logger from './logger';
 
-export function getCompiler(loaderOptions: LoaderOptions, log: logger.Logger) {
+export function getCompiler(
+  loaderOptions: LoaderOptions,
+  loader: Webpack,
+  log: logger.Logger
+) {
   let compiler: typeof typescript | undefined;
   let errorMessage: string | undefined;
   let compilerDetailsLogMessage: string | undefined;
@@ -23,6 +27,48 @@ export function getCompiler(loaderOptions: LoaderOptions, log: logger.Logger) {
   }
 
   if (errorMessage === undefined) {
+    const { sys } = compiler as any;
+    const {
+      fileExists,
+      // getDirectories,
+      readDirectory,
+      readFile
+    } = sys;
+    sys.readFile = (filepath: string, encoding = 'utf8') => {
+      try {
+        return loader.fs.readFileSync(filepath, encoding);
+      } catch (e) {
+        console.log(e);
+        return readFile(filepath, encoding);
+      }
+    };
+    sys.fileExists = (path: string) =>
+      loader.fs.existsSync(path) || fileExists(path);
+    sys.readDirectory = (
+      path: string,
+      extensions: string,
+      include: any,
+      exclude: any,
+      depth: any
+    ) => {
+      console.log('readDirectory');
+      try {
+        console.log(path);
+        return loader.fs.readdirSync(path, extensions);
+      } catch (e) {
+        console.log(e);
+        return readDirectory(path, extensions, include, exclude, depth);
+      }
+    };
+    // sys.getDirectories = (path: string) => {
+    //     try {
+    //         return loader.fs.getDirectories(path);
+    //     } catch (e) {
+    //         console.log(e);
+    //         return getDirectories(path);
+    //     }
+    // }
+
     compilerDetailsLogMessage = `ts-loader: Using ${loaderOptions.compiler}@${
       compiler!.version
     }`;

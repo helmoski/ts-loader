@@ -19,30 +19,42 @@ export function getConfigFile(
   log: logger.Logger,
   compilerDetailsLogMessage: string
 ) {
+  console.log('getConfigFile');
   const configFilePath = findConfigFile(
     loader,
     compiler,
     path.dirname(loader.resourcePath),
     loaderOptions.configFile
   );
+  console.log(configFilePath);
   let configFileError: WebpackError | undefined;
   let configFile: ConfigFile;
 
   if (configFilePath !== undefined) {
     if (compilerCompatible) {
-      log.logInfo(`${compilerDetailsLogMessage} and ${configFilePath}`);
+      console.log(`${compilerDetailsLogMessage} and ${configFilePath}`);
     } else {
-      log.logInfo(`ts-loader: Using config file at ${configFilePath}`);
+      console.log(`ts-loader: Using config file at ${configFilePath}`);
     }
 
-    const readFile = (filePath: string, encoding: string = "utf8") => {
+    console.log(loader.fs.readFileSync('/tsconfig.json'));
+    const readFile = (filePath: string) => {
+      console.log('readFile');
+      console.log(filePath);
       try {
-        return loader.fs.readFileSync(filePath, { encoding });
+        console.log(loader.fs.readFileSync(filePath));
+        const file = loader.fs.readFileSync(filePath);
+        console.log(file);
+        throw new Error();
+        // return file;
       } catch (e) {
-        return compiler.sys.readFile(filePath, encoding);
+        console.error(e);
+        console.log(compiler.sys.readFile('~/test.txt'));
+        return compiler.sys.readFile(filePath);
       }
-    }
+    };
     configFile = compiler.readConfigFile(configFilePath, readFile);
+    console.log(configFile);
 
     if (configFile.error !== undefined) {
       configFileError = formatErrors(
@@ -99,7 +111,11 @@ function findConfigFile(
   requestDirPath: string,
   configFile: string
 ): string | undefined {
-  const fileExists = (fileName: string) => loader.fs.existsSync(fileName) || compiler.sys.fileExists(fileName);
+  const fileExists = (fileName: string) => {
+    const exists =
+      loader.fs.existsSync(fileName) || compiler.sys.fileExists(fileName);
+    return exists;
+  };
 
   // If `configFile` is an absolute path, return it right away
   if (path.isAbsolute(configFile)) {
@@ -118,6 +134,7 @@ function findConfigFile(
     while (true) {
       const fileName = path.join(requestDirPath, configFile);
       if (fileExists(fileName)) {
+        console.log('RETURNING FILENAME', fileName);
         return fileName;
       }
       const parentPath = path.dirname(requestDirPath);

@@ -47,7 +47,7 @@ export function getTypeScriptInstance(
 
   const colors = new chalk.constructor({ enabled: loaderOptions.colors });
   const log = logger.makeLogger(loaderOptions, colors);
-  const compiler = getCompiler(loaderOptions, log);
+  const compiler = getCompiler(loaderOptions, loader, log);
 
   if (compiler.errorMessage !== undefined) {
     return { error: makeError(colors.red(compiler.errorMessage), undefined) };
