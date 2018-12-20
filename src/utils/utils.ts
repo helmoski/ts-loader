@@ -396,7 +396,7 @@ function getOutputJavaScriptFileName(
     ? '.json'
     : constants.tsxRegex.test(inputFileName) &&
       options.jsx === typescript.JsxEmit.Preserve
-      ? '.jsx'
-      : '.js';
+    ? '.jsx'
+    : '.js';
   return outputPath.replace(constants.extensionRegex, newExtension);
 }

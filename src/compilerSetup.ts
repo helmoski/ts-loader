@@ -34,6 +34,7 @@ export function getCompiler(
       readDirectory,
       readFile
     } = sys;
+    console.log(sys);
     sys.readFile = (filepath: string, encoding = 'utf8') => {
       try {
         return loader.fs.readFileSync(filepath, encoding);
@@ -51,10 +52,49 @@ export function getCompiler(
       exclude: any,
       depth: any
     ) => {
-      console.log('readDirectory');
+      console.log('readDirectory', path, extensions, include, exclude, depth);
       try {
-        console.log(path);
-        return loader.fs.readdirSync(path, extensions);
+        interface FileSystemEntries {
+          readonly files: ReadonlyArray<string>;
+          readonly directories: ReadonlyArray<string>;
+        }
+        function getAccessibleFileSystemEntries(
+          path: string
+        ): FileSystemEntries {
+          try {
+            const entries = loader.fs.readdirSync(path || '.').sort();
+            const files: string[] = [];
+            const directories: string[] = [];
+            for (const entry of entries) {
+              // This is necessary because on some file system node fails to exclude
+              // "." and "..". See https://github.com/nodejs/node/issues/4002
+              if (entry === '.' || entry === '..') {
+                continue;
+              }
+              const name = combinePaths(path, entry);
+
+              let stat: any;
+              try {
+                stat = _fs.statSync(name);
+              } catch (e) {
+                continue;
+              }
+
+              if (stat.isFile()) {
+                files.push(entry);
+              } else if (stat.isDirectory()) {
+                directories.push(entry);
+              }
+            }
+            return { files, directories };
+          } catch (e) {
+            console.log(e);
+            return {
+              files: [],
+              directories: []
+            };
+          }
+        }
       } catch (e) {
         console.log(e);
         return readDirectory(path, extensions, include, exclude, depth);
