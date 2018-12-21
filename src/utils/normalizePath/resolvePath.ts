@@ -1,11 +1,11 @@
 import { combinePaths } from '../combinePaths';
 import { ensureTrailingDirectorySeparator } from '../ensureTrailingDirectorySeparator';
+import { getPathComponents } from '../getPathComponents';
 import { hasTrailingDirectorySeparator } from '../hasTrailingDirectorySeparator';
 import { normalizeSlashes } from '../normalizeSlashes';
+import { reducePathComponents } from '../reducePathComponents';
 import { some } from '../some';
-import { getPathComponents } from './getPathComponents';
 import { getPathFromPathComponents } from './getPathFromPathComponents';
-import { reducePathComponents } from './reducePathComponents';
 
 /**
  * Combines and resolves paths. If a path is absolute, it replaces any previous path. Any

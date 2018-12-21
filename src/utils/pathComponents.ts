@@ -1,4 +1,4 @@
-import { lastOrUndefined } from '../lastOrUndefined';
+import { lastOrUndefined } from './lastOrUndefined';
 
 const directorySeparator = '/';
 

@@ -1,4 +1,4 @@
-import { some } from '../some';
+import { some } from './some';
 
 /**
  * Reduce an array of path components to a more simplified path by navigating any

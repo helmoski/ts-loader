@@ -1,4 +1,9 @@
-import { getAccessibleFileSystemEntries } from './getAccessibleFileSystemEntries';
+import {
+  combinePaths,
+  flatten,
+  getFileMatcherPatterns,
+  normalizePath
+} from '../utils';
 
 export function matchFiles(
   path: string,
@@ -57,8 +62,12 @@ export function matchFiles(
     for (const current of sort<string>(files, compareStringsCaseSensitive)) {
       const name = combinePaths(path, current);
       const absoluteName = combinePaths(absolutePath, current);
-      if (extensions && !fileExtensionIsOneOf(name, extensions)) continue;
-      if (excludeRegex && excludeRegex.test(absoluteName)) continue;
+      if (extensions && !fileExtensionIsOneOf(name, extensions)) {
+        continue;
+      }
+      if (excludeRegex && excludeRegex.test(absoluteName)) {
+        continue;
+      }
       if (!includeFileRegexes) {
         results[0].push(name);
       } else {
