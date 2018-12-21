@@ -1,5 +1,5 @@
-import { combinePaths } from '../combinePaths';
-import { getRootLength } from '../getRootLength';
+import { combinePaths } from './combinePaths';
+import { getRootLength } from './getRootLength';
 import { pathComponents } from './pathComponents';
 
 /**
