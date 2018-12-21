@@ -3,8 +3,7 @@ const path = require("path");
 const webpack = require("webpack");
 const MemoryFS = require("memory-fs");
 const { ufs } = require("unionfs");
-// console.log(path.join(__dirname, "dist"));
-// console.log(path.join(__dirname, "..", "..", "..", "dist"));
+
 const config = {
     devtool: 'inline-source-map',
     mode: "development",
@@ -30,7 +29,6 @@ describe("memory-fs", () => {
     let inputMemoryFileSystem;
 
     beforeEach(() => {
-        console.log('INSIDE BEFORE EACH');
         compiler = webpack(config);
 
         inputMemoryFileSystem = new MemoryFS();
@@ -49,11 +47,8 @@ describe("memory-fs", () => {
     });
 
     it("should compile from a memory-fs for the input file system", (done) => {
-        console.log('INSIDE IT');
         compiler.run((err, stats) => {
-            console.log('NEVER HAPPENED')
             done();
-            // console.log(stats.toString());
 
             if (err) {
                 return done(err);
@@ -68,11 +63,9 @@ describe("memory-fs", () => {
                 const statJson = stats.toJson();
                 return done(statJson.errors[0]);
             }
-            console.log('TESTING');
-            // console.log(path.join(__dirname, "dist", "main.js"));
-            console.log('TESTING');
-            // expect(fs.readFileSync(path.join(__dirname, "dist", "main.js"))).toMatchSnapshot();
-            console.log('TESTING');
+
+            const output = stats.toJson().modules[0].source;
+            expect(output).toMatchSnapshot();
             done();
         });
     });

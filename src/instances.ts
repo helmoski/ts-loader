@@ -1,5 +1,4 @@
 import chalk, { Chalk } from 'chalk';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as typescript from 'typescript';
 
@@ -206,7 +205,7 @@ function successfulTypeScriptInstance(
     filesToLoad.forEach(filePath => {
       normalizedFilePath = path.normalize(filePath);
       files.set(normalizedFilePath, {
-        text: fs.readFileSync(normalizedFilePath, 'utf-8'),
+        text: loader.fs.readFileSync(normalizedFilePath, 'utf-8'),
         version: 0
       });
     });
