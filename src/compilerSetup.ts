@@ -45,8 +45,15 @@ export function getCompiler(
     };
     sys.fileExists = (path: string) =>
       loader.fs.existsSync(path) || fileExists(path);
-    sys.readDirectory = readDirectory;
-
+    sys.readDirectory = (
+      path: string,
+      extensions: string[],
+      include: any,
+      exclude: any,
+      depth: any
+    ) => {
+      readDirectory(loader, path, extensions, include, exclude, depth);
+    };
     // sys.getDirectories = (path: string) => {
     //     try {
     //         return loader.fs.getDirectories(path);
