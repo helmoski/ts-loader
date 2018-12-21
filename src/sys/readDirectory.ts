@@ -17,7 +17,6 @@ export function readDirectory(
     includes,
     isFileSystemCaseSensitive(loader),
     process.cwd(),
-    depth,
-    (targetPath: string) => getAccessibleFileSystemEntries(loader, targetPath)
+    depth
   );
 }

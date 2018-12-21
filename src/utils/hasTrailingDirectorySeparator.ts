@@ -1,6 +1,6 @@
 // Adapted from Typescript source
 
-import { CharacterCodes } from '../CharacterCodes';
+import { CharacterCodes } from './CharacterCodes';
 
 /**
  * Determines whether a path has a trailing separator (`/` or `\\`).
