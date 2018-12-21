@@ -4,7 +4,7 @@ import * as micromatch from 'micromatch';
 import * as path from 'path';
 import * as typescript from 'typescript';
 
-import constants = require('./constants');
+import constants = require('../constants');
 import {
   DependencyGraph,
   ErrorInfo,
@@ -15,7 +15,7 @@ import {
   Webpack,
   WebpackError,
   WebpackModule
-} from './interfaces';
+} from '../interfaces';
 
 /**
  * The default error formatter.
