@@ -3,6 +3,9 @@
 exports[`memory-fs should compile from a memory-fs for the input file system 1`] = `
 "// import { render } from \\"./render\\";
 // render();
-console.log('test');
+function greet(name) {
+    console.log(\\"Hello, \\" + name + \\"!\\");
+}
+greet('World');
 "
 `;
