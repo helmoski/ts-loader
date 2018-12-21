@@ -4,6 +4,7 @@ import * as typescript from 'typescript';
 import * as constants from './constants';
 import { LoaderOptions, Webpack } from './interfaces';
 import * as logger from './logger';
+import { readDirectory } from './sys';
 
 export function getCompiler(
   loaderOptions: LoaderOptions,
@@ -31,7 +32,6 @@ export function getCompiler(
     const {
       fileExists,
       // getDirectories,
-      readDirectory,
       readFile
     } = sys;
     console.log(sys);
@@ -45,61 +45,8 @@ export function getCompiler(
     };
     sys.fileExists = (path: string) =>
       loader.fs.existsSync(path) || fileExists(path);
-    sys.readDirectory = (
-      path: string,
-      extensions: string,
-      include: any,
-      exclude: any,
-      depth: any
-    ) => {
-      console.log('readDirectory', path, extensions, include, exclude, depth);
-      try {
-        interface FileSystemEntries {
-          readonly files: ReadonlyArray<string>;
-          readonly directories: ReadonlyArray<string>;
-        }
-        function getAccessibleFileSystemEntries(
-          path: string
-        ): FileSystemEntries {
-          try {
-            const entries = loader.fs.readdirSync(path || '.').sort();
-            const files: string[] = [];
-            const directories: string[] = [];
-            for (const entry of entries) {
-              // This is necessary because on some file system node fails to exclude
-              // "." and "..". See https://github.com/nodejs/node/issues/4002
-              if (entry === '.' || entry === '..') {
-                continue;
-              }
-              const name = combinePaths(path, entry);
+    sys.readDirectory = readDirectory;
 
-              let stat: any;
-              try {
-                stat = _fs.statSync(name);
-              } catch (e) {
-                continue;
-              }
-
-              if (stat.isFile()) {
-                files.push(entry);
-              } else if (stat.isDirectory()) {
-                directories.push(entry);
-              }
-            }
-            return { files, directories };
-          } catch (e) {
-            console.log(e);
-            return {
-              files: [],
-              directories: []
-            };
-          }
-        }
-      } catch (e) {
-        console.log(e);
-        return readDirectory(path, extensions, include, exclude, depth);
-      }
-    };
     // sys.getDirectories = (path: string) => {
     //     try {
     //         return loader.fs.getDirectories(path);
