@@ -52,7 +52,7 @@ export function getCompiler(
       exclude: any,
       depth: any
     ) => {
-      readDirectory(loader, path, extensions, include, exclude, depth);
+      return readDirectory(loader, path, extensions, include, exclude, depth);
     };
     // sys.getDirectories = (path: string) => {
     //     try {
