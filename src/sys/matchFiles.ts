@@ -1,11 +1,19 @@
+import { Webpack } from '../interfaces';
 import {
   combinePaths,
+  compareStringsCaseSensitive,
+  fileExtensionIsOneOf,
+  findIndex,
   flatten,
   getFileMatcherPatterns,
-  normalizePath
+  getRegexFromPattern,
+  normalizePath,
+  sort
 } from '../utils';
+import { getAccessibleFileSystemEntries } from './getAccessibleFileSystemEntries';
 
 export function matchFiles(
+  loader: Webpack,
   path: string,
   extensions: ReadonlyArray<string> | undefined,
   excludes: ReadonlyArray<string> | undefined,
@@ -53,14 +61,17 @@ export function matchFiles(
   return flatten<string>(results);
 
   function visitDirectory(
-    path: string,
+    targetPath: string,
     absolutePath: string,
-    depth: number | undefined
+    targetDepth: number | undefined
   ) {
-    const { files, directories } = getFileSystemEntries(path);
+    const { files, directories } = getAccessibleFileSystemEntries(
+      loader,
+      targetPath
+    );
 
     for (const current of sort<string>(files, compareStringsCaseSensitive)) {
-      const name = combinePaths(path, current);
+      const name = combinePaths(targetPath, current);
       const absoluteName = combinePaths(absolutePath, current);
       if (extensions && !fileExtensionIsOneOf(name, extensions)) {
         continue;
@@ -80,9 +91,9 @@ export function matchFiles(
       }
     }
 
-    if (depth !== undefined) {
-      depth--;
-      if (depth === 0) {
+    if (targetDepth !== undefined) {
+      targetDepth--;
+      if (targetDepth === 0) {
         return;
       }
     }
@@ -91,13 +102,13 @@ export function matchFiles(
       directories,
       compareStringsCaseSensitive
     )) {
-      const name = combinePaths(path, current);
+      const name = combinePaths(targetPath, current);
       const absoluteName = combinePaths(absolutePath, current);
       if (
         (!includeDirectoryRegex || includeDirectoryRegex.test(absoluteName)) &&
         (!excludeRegex || !excludeRegex.test(absoluteName))
       ) {
-        visitDirectory(name, absoluteName, depth);
+        visitDirectory(name, absoluteName, targetDepth);
       }
     }
   }

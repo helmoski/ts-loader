@@ -1,6 +1,6 @@
 import { Webpack } from '../interfaces';
-import { getAccessibleFileSystemEntries } from './getAccessibleFileSystemEntries';
 import { isFileSystemCaseSensitive } from './isFileSystemCaseSensitive';
+import { matchFiles } from './matchFiles';
 
 export function readDirectory(
   loader: Webpack,
@@ -11,6 +11,7 @@ export function readDirectory(
   depth?: number
 ): string[] {
   return matchFiles(
+    loader,
     path,
     extensions,
     excludes,
