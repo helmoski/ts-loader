@@ -29,12 +29,7 @@ export function getCompiler(
 
   if (errorMessage === undefined) {
     const { sys } = compiler as any;
-    const {
-      fileExists,
-      // getDirectories,
-      readFile
-    } = sys;
-    console.log(sys);
+    const { fileExists, readFile } = sys;
     sys.readFile = (filepath: string, encoding = 'utf8') => {
       try {
         return loader.fs.readFileSync(filepath, encoding);
@@ -54,14 +49,6 @@ export function getCompiler(
     ) => {
       return readDirectory(loader, path, extensions, include, exclude, depth);
     };
-    // sys.getDirectories = (path: string) => {
-    //     try {
-    //         return loader.fs.getDirectories(path);
-    //     } catch (e) {
-    //         console.log(e);
-    //         return getDirectories(path);
-    //     }
-    // }
 
     compilerDetailsLogMessage = `ts-loader: Using ${loaderOptions.compiler}@${
       compiler!.version
